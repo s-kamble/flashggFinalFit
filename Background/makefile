@@ -43,6 +43,7 @@ CXXFLAGS += $(INCLUDE)
 
 LIBS += $(USERLIBS)
 LIBS += -L$(CMSSW_BASE)/lib/$(SCRAM_ARCH)/ -lHiggsAnalysisCombinedLimit
+
 # this is where you  would normaly have the lib, bin and source directories
 LIBDIR = $(BASEDIR)/lib
 EXEDIR = $(BASEDIR)/bin
@@ -52,6 +53,7 @@ OBJDIR = $(BASEDIR)/obj
 INCDIR = $(BASEDIR)/interface
 TESTDIR = $(BASEDIR)/test
 DOCDIR= $(BASEDIR)/docs
+
 OBJ_EXT=o
 TEST_EXT=cpp
 
@@ -71,12 +73,12 @@ $(EXEDIR)/%: $(TESTDIR)/%.cpp $(LIBDIR)/lib$(LIBNAME).so $(BASEDIR)/interface/*.
 
 $(OBJDIR)/%.$(OBJ_EXT): $(SRCDIR)/%.cc $(ROOT_DICT) 
 	@echo Making object $@
-	@$(CXX) $(CXXFLAGS) -fPIC -c $<  -o $@
+	@$(CXX) $(CXXFLAGS) -fPIC -c $< -o $@
 
 $(LIBDIR)/lib$(LIBNAME).so: $(OBJS) $(ROOT_OBJ)
 	@echo Building shared library $@
 	@$(LD) $(LDFLAGS) -o $(LIBDIR)/lib$(LIBNAME).so $^ $(LIBS)
-	
+
 $(ROOT_DICT): $(SRCS) $(HEADERS)
 	@echo Making dictionary $@
 	@rootcint -f $@ -c -L$(ROOFITSYS)/lib -I$(ROOFITSYS)/include $(HEADERS)
@@ -102,5 +104,3 @@ clean:
 	@echo "  " $(BINS)
 	@echo "  " $(ROOT_DICT)
 	@rm -rf $(OBJS) $(LIBDIR)/lib$(LIBNAME).so $(BINS) $(ROOT_DICT)
-
-
