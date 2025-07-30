@@ -59,11 +59,11 @@ using namespace boost;
 
 namespace po = program_options;
 int data_by_fit = 1;
-bool BLIND = false;
+bool BLIND = true;
 bool runFtestCheckWithToys=false;
-int mgg_low = 500;
-int mgg_high = 1000;
-int nBinsForPlot = (mgg_high - mgg_low)/10 ; //4*(mgg_high-mgg_low);
+int mgg_low = 100;
+int mgg_high = 250;
+int nBinsForPlot = (mgg_high - mgg_low)/5 ; //4*(mgg_high-mgg_low);
 int nBinsForMass =  mgg_high - mgg_low;
 double binWidth = 1; //(mgg_high - mgg_low)/nBinsForMass;
 
@@ -398,21 +398,21 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
 
   TCanvas *canv = new TCanvas();
   RooHist *plotdata = (RooHist*)plot->getObject(plot->numItems()-1);
-  TPad *pad1 = new TPad("pad1","pad1",0,0.25,1,1);
-  TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.35);
-  pad1->SetBottomMargin(0.18);
-  pad1->SetTopMargin(0.14);     // Increase top margin
-  pad1->SetLeftMargin(0.12);    // Increase left margin
+  // TPad *pad1 = new TPad("pad1","pad1",0,0.25,1,1);
+  // TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.35);
+  // pad1->SetBottomMargin(0.18);
+  // pad1->SetTopMargin(0.14);     // Increase top margin
+  // pad1->SetLeftMargin(0.12);    // Increase left margin
   
-  pad2->SetTopMargin(0.08);
-  pad2->SetBottomMargin(0.30);
-  pad2->SetLeftMargin(0.12);
+  // pad2->SetTopMargin(0.08);
+  // pad2->SetBottomMargin(0.30);
+  // pad2->SetLeftMargin(0.12);
 
-  pad1->Draw();
-  pad2->Draw();
-  pad1->cd();
+  // pad1->Draw();
+  // pad2->Draw();
+  // pad1->cd();
   pdf->plotOn(plot);//,RooFit::NormRange("fitdata_1,fitdata_2"));
-  pdf->paramOn(plot,RooFit::Layout(0.4,0.96,0.89),RooFit::Format("NEF",AutoPrecision(1)));
+  pdf->paramOn(plot,RooFit::Layout(0.34,0.96,0.89),RooFit::Format("NEF",AutoPrecision(1)));
 
   if (BLIND) plot->SetMinimum(0.0001);
   //plot->GetYaxis()->SetTitleOffset(1);  // Increase space between y-axis and title
@@ -487,10 +487,13 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
   TLatex *lat = new TLatex();
   lat->SetNDC();
   lat->SetTextFont(42);  // Standard font (bold=62)
-  lat->SetTextSize(0.04); // Increased from default 0.03
+  // lat->SetTextSize(0.04); // Increased from default 0.03
   lat->SetTextColor(kBlack);
-  lat->SetTextAlign(31);
-  lat->DrawLatex(0.1, 0.93, Form("#chi^{2}/ndof = %.3f | Prob = %.2f | Status = %d", chi2, *prob, status));
+  // lat->SetTextAlign(31);
+  // lat->DrawLatex(0.1, 0.93, Form("#chi^{2}/ndof = %.3f | Prob = %.2f | Status = %d", chi2, *prob, status));
+  lat->DrawLatex(0.1,0.92,Form("#chi^{2} = %.3f, Prob = %.2f, Fit Status = %d ",chi2*(nBinsForMass-np),*prob,status));
+
+// lat->DrawLatex(0.973, 0.88, Form("#chi^{2}/ndof = %.3f | Prob = %.2f | NLL = %.1f | Status = %d", chi2, *prob, NLL, status));
 
 //   pad2->cd();
 //   TH1 *hdummy = new TH1D("hdummyweight", "", nBinsForPlot, mgg_low, mgg_high);
@@ -609,7 +612,8 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
     int np = basepdf->getParameters(*data)->getSize() + 1; //using the same np as if it was an extend pdf
     double chi2 = plot_chi2->chiSquare(np);
     double nll_display = (icat < nll_values.size()) ? nll_values[icat] : -1.0;
-    leg->AddEntry(pdfLeg,Form("%s%s(%.2f, %.1f)", pdfs->getCurrentPdf()->GetName(), ext.c_str(), chi2, nll_display), "L");
+    // leg->AddEntry(pdfLeg,Form("%s%s(%.2f, %.1f)", pdfs->getCurrentPdf()->GetName(), ext.c_str(), chi2, nll_display), "L");
+    leg->AddEntry(pdfLeg,Form("%s%s",pdfs->getCurrentPdf()->GetName(),ext.c_str()),"L");
 
     // leg->AddEntry(pdfLeg,Form("%s%s(%.2f)",pdfs->getCurrentPdf()->GetName(),ext.c_str(),chi2),"L");}
   }
