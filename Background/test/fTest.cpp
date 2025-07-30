@@ -58,7 +58,7 @@ using namespace RooFit;
 using namespace boost;
 
 namespace po = program_options;
-int data_by_fit = 0;
+int data_by_fit = 1;
 bool BLIND = false;
 bool runFtestCheckWithToys=false;
 int mgg_low = 500;
@@ -259,7 +259,7 @@ double getProbabilityFtest(double chi2, int ndof, RooAbsPdf *pdfNull, RooAbsPdf 
   toyhistStatN.Draw();
   toyhistStatT.Draw("same");
   leg->Draw();
-  stas->SaveAs(Form("%s_fitstatus.png",name.c_str()));
+  stas->SaveAs(Form("%s_fitstatus.pdf",name.c_str()));
   //reassign params
   params_null->assignValueOnly(preParams_null);
   params_test->assignValueOnly(preParams_test);
@@ -383,8 +383,8 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
   mass->setRange("unblindReg_1",mgg_low,115);
   mass->setRange("unblindReg_2",135,mgg_high);
   if (BLIND) {
-    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_1"), RooFit::MarkerSize(2));
-    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_2"), RooFit::MarkerSize(2));
+    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_1"));
+    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_2"));
     data->plotOn(plot,Binning(nBinsForPlot),Invisible());
     // data->plotOn(plot,Binning(mgg_high-mgg_low),CutRange("unblindReg_1"));
     // data->plotOn(plot,Binning(mgg_high-mgg_low),CutRange("unblindReg_2"));
@@ -393,7 +393,7 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
     //ta->plotOn(plot,Binning(nBinsForMass),CutRange("unblindReg_2"));
     //ta->plotOn(plot,Binning(nBinsForMass),Invisible());
   }
-  else data->plotOn(plot,Binning(nBinsForPlot), RooFit::MarkerSize(2));
+  else data->plotOn(plot,Binning(nBinsForPlot));
  // data->plotOn(plot,Binning(mgg_high-mgg_low));
 
   TCanvas *canv = new TCanvas();
@@ -412,8 +412,8 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
   pad2->Draw();
   pad1->cd();
   pdf->plotOn(plot);//,RooFit::NormRange("fitdata_1,fitdata_2"));
-  pdf->paramOn(plot,RooFit::Layout(0.4,0.96,0.84),RooFit::Format("NEF",AutoPrecision(6)));
-  plot->getAttText()->SetTextSize(0.025);
+  pdf->paramOn(plot,RooFit::Layout(0.4,0.96,0.89),RooFit::Format("NEF",AutoPrecision(1)));
+
   if (BLIND) plot->SetMinimum(0.0001);
   //plot->GetYaxis()->SetTitleOffset(1);  // Increase space between y-axis and title
   plot->SetTitle("");                     // Already present
@@ -490,48 +490,46 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooDataSet *data, string name,vector
   lat->SetTextSize(0.04); // Increased from default 0.03
   lat->SetTextColor(kBlack);
   lat->SetTextAlign(31);
-  lat->DrawLatex(0.973, 0.88, Form("#chi^{2}/ndof = %.3f | Prob = %.2f | NLL = %.1f | Status = %d", chi2, *prob, NLL, status));
+  lat->DrawLatex(0.1, 0.93, Form("#chi^{2}/ndof = %.3f | Prob = %.2f | Status = %d", chi2, *prob, status));
 
-  pad2->cd();
-  TH1 *hdummy = new TH1D("hdummyweight", "", nBinsForPlot, mgg_low, mgg_high);
-  if (data_by_fit == 1) {
-      hdummy->GetYaxis()->SetTitle("data/(best fit)");
-      hdummy->SetMaximum(1.05);
-      hdummy->SetMinimum(0.95);                     
- }else{
-      hdummy->GetYaxis()->SetTitle("data - best_fit");
-      hdummy->SetMaximum(hdatasub->GetHistogram()->GetMaximum()+1);
-      hdummy->SetMinimum(hdatasub->GetHistogram()->GetMinimum()-1);
-  }
+//   pad2->cd();
+//   TH1 *hdummy = new TH1D("hdummyweight", "", nBinsForPlot, mgg_low, mgg_high);
+//   if (data_by_fit == 1) {
+//       hdummy->GetYaxis()->SetTitle("data/(best fit)");
+//       hdummy->SetMaximum(1.05);
+//       hdummy->SetMinimum(0.95);                     
+//  }else{
+//       hdummy->GetYaxis()->SetTitle("data - best_fit");
+//       hdummy->SetMaximum(hdatasub->GetHistogram()->GetMaximum()+1);
+//       hdummy->SetMinimum(hdatasub->GetHistogram()->GetMinimum()-1);
+//   }
   
-  hdummy->GetYaxis()->SetTitleSize(0.09);
-  hdummy->GetYaxis()->SetLabelSize(0.07);
-  hdummy->GetYaxis()->SetTitleOffset(0.6);
-  hdummy->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
-  hdummy->GetXaxis()->SetTitleSize(0.12);
-  hdummy->GetXaxis()->SetLabelSize(0.08);
-  hdummy->Draw("HIST");
-  hdummy->GetYaxis()->SetNdivisions(808);
+//   hdummy->GetYaxis()->SetTitleSize(0.09);
+//   hdummy->GetYaxis()->SetLabelSize(0.07);
+//   hdummy->GetYaxis()->SetTitleOffset(0.6);
+//   hdummy->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
+//   hdummy->GetXaxis()->SetTitleSize(0.12);
+//   hdummy->GetXaxis()->SetLabelSize(0.08);
+//   hdummy->Draw("HIST");
+//   hdummy->GetYaxis()->SetNdivisions(808);
 
-  if (data_by_fit == 1) {
-      TLine *line3 = new TLine(mgg_low, 1., mgg_high, 1.);
-   line3->SetLineColor(kBlue);
-  line3->SetLineWidth(5);
-  line3->Draw();
-  }
-  else {
-      TLine *line3 = new TLine(mgg_low, 0., mgg_high, 0.);
-       line3->SetLineColor(kBlue);
-  line3->SetLineWidth(5);
-  line3->Draw();
-  }
+//   if (data_by_fit == 1) {
+//       TLine *line3 = new TLine(mgg_low, 1., mgg_high, 1.);
+//    line3->SetLineColor(kBlue);
+//   line3->SetLineWidth(5);
+//   line3->Draw();
+//   }
+//   else {
+//       TLine *line3 = new TLine(mgg_low, 0., mgg_high, 0.);
+//        line3->SetLineColor(kBlue);
+//   line3->SetLineWidth(5);
+//   line3->Draw();
+//   }
  
-  hdatasub->SetMarkerSize(1.5);
-  hdatasub->Draw("PESAME");
+//   hdatasub->SetMarkerSize(1.5);
+//   hdatasub->Draw("PESAME");
 
-  // canv->SaveAs(Form("%s.pdf", name.c_str()));
-  canv->SetCanvasSize(1500, 1500);  
-  canv->Print(Form("%s.png", name.c_str()), "png");
+  canv->SaveAs(Form("%s.pdf", name.c_str()));
 
   delete canv;
   delete lat;
@@ -549,8 +547,8 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
   mass->setRange("unblindReg_1",mgg_low,115);
   mass->setRange("unblindReg_2",135,mgg_high);
   if (BLIND) {
-    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_1"), RooFit::MarkerSize(2));
-    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_2"), RooFit::MarkerSize(2));
+    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_1"));
+    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_2"));
     data->plotOn(plot,Binning(nBinsForPlot),Invisible());
     //ta->plotOn(plot,Binning(mgg_high-mgg_low),CutRange("unblindReg_1"));
     //ta->plotOn(plot,Binning(mgg_high-mgg_low),CutRange("unblindReg_2"));
@@ -559,7 +557,7 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
     // data->plotOn(plot,Binning(nBinsForMass),CutRange("unblindReg_2"));
     // data->pln(plot,Binning(nBinsForMass),Invisible());
   }
-  else data->plotOn(plot,Binning(nBinsForPlot), RooFit::MarkerSize(2)); 
+  else data->plotOn(plot,Binning(nBinsForPlot)); 
   TCanvas *canv = new TCanvas();
   ///start extra bit for ratio plot///
   RooHist *plotdata = (RooHist*)plot->getObject(plot->numItems()-1);
@@ -567,12 +565,9 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
   TPad *pad1 = new TPad("pad1","pad1",0,0.25,1,1);
   TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.35);
   pad1->SetBottomMargin(0.18);
-  pad1->SetTopMargin(0.14);     // Increase top margin
-  pad1->SetLeftMargin(0.16);    // Increase left margin
-  
-  pad2->SetTopMargin(0.08);
-  pad2->SetBottomMargin(0.30);
-  pad2->SetLeftMargin(0.16);
+  pad2->SetTopMargin(0.00001);
+
+  pad2->SetBottomMargin(0.25);
   
 
   pad1->Draw();
@@ -622,8 +617,8 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
   if (BLIND) plot->SetMinimum(0.0001);
   plot->Draw();
   // plot->GetYaxis()->SetTitle("Events / bin size [GeV^{ -1 }]");
-  plot->GetYaxis()->SetNoExponent(kTRUE);
-  plot->GetYaxis()->SetTitleOffset(2);
+  // plot->GetYaxis()->SetNoExponent(kTRUE);
+  // plot->GetYaxis()->SetTitleOffset(2);
   leg->Draw("same");
   CMS_lumi( canv, 2022, 0);  // second argument is iperiod
   ///start extra bit for ratio plot///
@@ -677,12 +672,9 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
       hdummy->SetMinimum(hdatasub->GetHistogram()->GetMinimum()-1);
   }
 
-  hdummy->GetYaxis()->SetTitleSize(0.09);
-  hdummy->GetYaxis()->SetLabelSize(0.07);
-  hdummy->GetYaxis()->SetTitleOffset(0.6); 
+  hdummy->GetYaxis()->SetTitleSize(0.12);
   hdummy->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
   hdummy->GetXaxis()->SetTitleSize(0.12);
-  hdummy->GetXaxis()->SetLabelSize(0.08);
   hdummy->Draw("HIST");
   hdummy->GetYaxis()->SetNdivisions(808);
 
@@ -702,9 +694,8 @@ void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooDataSet
   hdatasub->SetMarkerSize(1.5);
   hdatasub->Draw("PESAME");
   // end extra bit for ratio plot///
-  // canv->SaveAs(Form("%s.pdf", name.c_str()));
-  canv->SetCanvasSize(1500, 1500);  
-  canv->Print(Form("%s.png", name.c_str()), "png");
+  canv->SaveAs(Form("%s.pdf", name.c_str()));
+
   catIndex->setIndex(currentIndex);
   delete canv;
 }
@@ -713,9 +704,7 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
   // Truth plot function
   int color[8] = { kBlue, kRed, kGreen+2, kMagenta, kGray, kOrange, kCyan, kLightBrown};
   TCanvas *canv = new TCanvas();
-  canv->SetLeftMargin(0.2);   // Increase left margin
-  canv->SetRightMargin(0.05);   // Increase right margin
-  canv->SetTopMargin(0.1);
+
 
   TLegend *leg = new TLegend(0.6,0.65,0.88,0.88);
   leg->SetFillColor(0);
@@ -733,8 +722,8 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
     return;
   }
   if (BLIND) {
-    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_1"), RooFit::MarkerSize(2));
-    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_2"), RooFit::MarkerSize(2));
+    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_1"));
+    data->plotOn(plot,Binning(nBinsForPlot),CutRange("unblindReg_2"));
     data->plotOn(plot,Binning(nBinsForPlot),Invisible());
     //ta->plotOn(plot,Binning(mgg_high-mgg_low),CutRange("unblindReg_1"));
     //ta->plotOn(plot,Binning(mgg_high-mgg_low),CutRange("unblindReg_2"));
@@ -744,7 +733,7 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
     //ta->plotOn(plot,Binning(nBinsForMass),Invisible());
   }
   //se data->plotOn(plot,Binning(nBinsForMass));
-  else data->plotOn(plot,Binning(nBinsForPlot), RooFit::MarkerSize(2));
+  else data->plotOn(plot,Binning(nBinsForPlot));
 
   TObject *datLeg = plot->getObject(int(plot->numItems()-1));
 	if(flashggCats_.size() >0){
@@ -771,16 +760,17 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooDataSet *data, strin
   }
   plot->SetTitle(Form(" %s",flashggCats_[cat].c_str()));
   // plot->GetYaxis()->SetTitle("Events / bin size [GeV^{ -1 }]");
-  plot->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
+
   if (BLIND) plot->SetMinimum(0.0001);
   plot->Draw();
-  plot->GetYaxis()->SetNoExponent(kTRUE);
-  plot->GetYaxis()->SetTitleOffset(2.4);
+
   
   leg->Draw("same");
   CMS_lumi( canv, 2022, 0);
-  canv->SetCanvasSize(1500, 1500);  
-  canv->Print(Form("%s.png", name.c_str()), "png");
+
+  canv->SaveAs(Form("%s.pdf",name.c_str()));
+
+  canv->SaveAs(Form("%s.png",name.c_str()));
   delete canv;
 }
 

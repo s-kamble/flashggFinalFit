@@ -107,7 +107,8 @@ f = ROOT.TFile(opt.inputTreeFile)
 if opt.outputWSDir is not None: outputWSDir = opt.outputWSDir+"/ws"
 else: outputWSDir = "/".join(opt.inputTreeFile.split("/")[:-1])+"/ws"
 if not os.path.exists(outputWSDir): os.system("mkdir %s"%outputWSDir)
-outputWSFile = outputWSDir+"/"+opt.inputTreeFile.split("/")[-1]
+# outputWSFile = outputWSDir+"/"+opt.inputTreeFile.split("/")[-1]
+outputWSFile = f"{outputWSDir}/data_spin0_predcut_{int(massLow)}-{int(massHigh)}_ws.root"
 print(" --> Creating output workspace: (%s)"%outputWSFile)
 
 # Create output file and workspace
